@@ -27,11 +27,23 @@ if command -v jq >/dev/null 2>&1; then
     echo "jq is installed."
 else
     echo "ERROR: jq is not installed."
-    echo "Did you run the install script?"
+    echo "Please install jq before continuing."
     exit 1
 fi
 
-echo -e "\n--- STEP 3: JSON FILE CHECK ---"
+echo -e "\n--- STEP 3: GCLOUD CHECK ---"
+if command -v gcloud >/dev/null 2>&1; then
+    PROJECT=$(gcloud config get-value project 2>/dev/null)
+    ACCOUNT=$(gcloud config get-value account 2>/dev/null)
+    echo "gcloud is installed and initialized."
+    echo "Default Project: ${PROJECT:-NOT SET}"
+    echo "Active Account: ${ACCOUNT:-NOT SET}"
+else
+    echo "ERROR: gcloud is not installed or initialized."
+    exit 1
+fi
+
+echo -e "\n--- STEP 4: JSON FILE CHECK ---"
 SA_TOKEN=$(find "$TARGET_DIR" -maxdepth 1 -type f -name "*.json" | head -n 1)
 
 if [ -n "$SA_TOKEN" ]; then
@@ -41,7 +53,7 @@ else
     exit 1
 fi
 
-echo -e "\n--- STEP 4: TERRAFORM CHECK ---"
+echo -e "\n--- STEP 5: TERRAFORM CHECK ---"
 if command -v terraform >/dev/null 2>&1; then
     TF_VERSION=$(terraform version -json 2>/dev/null | jq -r '.terraform_version')
 
@@ -61,7 +73,7 @@ else
     exit 1
 fi
 
-echo -e "\n--- STEP 5: DOWNLOAD .GITIGNORE ---"
+echo -e "\n--- STEP 6: DOWNLOAD .GITIGNORE ---"
 if curl --ssl-no-revoke -s -o "$TARGET_DIR/.gitignore" https://raw.githubusercontent.com/aaron-dm-mcdonald/Class7-notes/refs/heads/main/101825/.gitignore; then
     echo ".gitignore downloaded to $TARGET_DIR"
 else
@@ -69,7 +81,7 @@ else
     exit 1
 fi
 
-echo -e "\n--- STEP 6: SETUP PROJECT DIRECTORY ---"
+echo -e "\n--- STEP 7: SETUP PROJECT DIRECTORY ---"
 mkdir -p "$WEEK_DIR"
 echo "Created directory: $WEEK_DIR"
 
