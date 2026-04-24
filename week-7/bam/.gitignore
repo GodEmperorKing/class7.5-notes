@@ -1,2 +1,4 @@
 *.tf
 image.jpg
+.terraform.lock.hcl
+.terraform/**
